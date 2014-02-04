@@ -59,6 +59,6 @@ class LexAnalyzer():
 	def Peek(self):
 		return self.List[self.location+1]
 	def GetNextToken(self):
-		location.i+=1
+		self.location+=1
 
 
