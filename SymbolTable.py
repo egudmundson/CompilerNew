@@ -16,6 +16,8 @@ class SymbolTable():
 
 	def addNode(self,Node):
 		key = Node.symid;
+	def Exists(self,value):
+
 
 	def __str__(self):
 		string = ''
