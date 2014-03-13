@@ -2,7 +2,7 @@ import SymbolTable
 import Lexical
 
 def TossError(Syntax,Expected):
-	return "Recevied %s on line %d Expected %s "%(Syntax.Lexical.GetNextToken().lexem,Syntax.Lexical.GetNextToken().line,Expected)
+	return "Recevied %s on line %d Expected %s "%(Syntax.Lexical.getToken().lexem,Syntax.Lexical.getToken().line,Expected)
 class Syntax():
 	def __init__(self,lexicalAnalysis):
 		self.Lexical = lexicalAnalysis
@@ -15,14 +15,14 @@ class Syntax():
 		else:
 			self.Lexical.reset();
 		self.FirstPass = firstPass
-		self.Expression()
+		self.Compilation_Unit()
 		print "First Run"
 	def Expression(self):
 		if(self.Lexical.getToken().lexem == "("):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != ")"):
@@ -30,87 +30,87 @@ class Syntax():
 			self.Lexical.GetNextToken()
 			try:
 				self.expressionz()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 	def expressionz(self):
 		if(self.Lexical.getToken.lexem == "="):
 			self.Lexical.GetNextToken()
 			try:
 				self.assignment_expression()
-			except Exception e:
+			except Exception as e:
 				raise Exception("%s"%e.message)
 		elif(self.Lexical.getToken.lexem =="&&"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="||"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="=="):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="!="):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="<="):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem ==">="):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="<"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 
 		elif(self.Lexical.getToken.lexem ==">"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="+"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="-"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="*"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		elif(self.Lexical.getToken.lexem =="/"):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 		else:
 			raise Exception(TossError(self,"expressionz Expected"))
@@ -119,7 +119,7 @@ class Syntax():
 		self.Lexical.GetNextToken()
 		try: 
 			self.Expression()
-		except Exception e:
+		except Exception as e:
 			if(self.Lexical.getToken().lexem =="this"):
 				return
 			if(self.Lexical.getToken().lexem == "new"):
@@ -129,45 +129,100 @@ class Syntax():
 					self.Lexical.GetNextToken()
 					self.new_declaration()
 
-				except Exception e:
+				except Exception as e:
 					self.HandleException(e)
 
-			if(self.Lexical.getToken().lexem == "atoi"|| self.Lexical.getToken().lexem =="itoa"):
+			if(self.Lexical.getToken().lexem == "atoi"or self.Lexical.getToken().lexem =="itoa"):
 				self.lexical.GetNextToken()
 				try:
 					self.Expression()
-				except Exception e: 
+				except Exception as e: 
 					self.HandleException(e)
 			
 	def type(self):
-		if(self.Lexical.GetToken().lexem == "int" || self.Lexical.GetToken().lexem == "char" ||self.Lexical.GetToken().lexem == "bool" || self.Lexical.GetToken().lexem == "void" || self.ClassNameExists()):
-			return
-		else 
-			raise Exception(TossError(self,"Type")
+		if(self.Lexical.getToken().lexem == "int" or self.Lexical.getToken().lexem == "char" or self.Lexical.getToken().lexem == "bool" or self.Lexical.getToken().lexem == "void" or self.ClassNameExists()):
+			return True
+		else: 
+			raise Exception(TossError(self,"Type"))
 	def ClassNameExists(self):
-		return self.SymbolTable.Exists(self.Lexical.GetToken().lexem)	
+		return self.SymbolTable.Exists(self.Lexical.getToken().lexem)	
 	def new_declaration(self):
-		if(self.Lexical.GetToken().lexem == "("):
+		if(self.Lexical.getToken().lexem == "("):
 			self.Lexical.GetNextToken()
 			try:
 				self.argument_list()
-			except Exception e:
+			except Exception as e:
 				self.HandleException(e)
 			self.Lexical.GetNextToken()
-			if(self.Lexical.GetToken().lexem != ")"):
+			if(self.Lexical.getToken().lexem != ")"):
 				raise Exception(TossError(self,")"))
-		if(self.Lexical.GetToken().lexem == "["):
+		if(self.Lexical.getToken().lexem == "["):
 			self.Lexical.GetNextToken()
 			try:
 				self.Expression()
-			except Exception e:
+			except Exception as e:
 				 self.HandleException(e)
 			self.Lexical.GetNextToken()
-			if(self.Lexical.GetToken().lexem != "]"):
+			if(self.Lexical.getToken().lexem != "]"):
 				raise Exception(TossError(self,"]"))
 	def argument_list(self):
 		print "STUB"
 
+	def Compilation_Unit(self):
+		try:
+			self.Class_declaration()
+		except Exception as e:
+			self.HandleException(e)
+		if( self.Lexical.getToken().lexem != "void"):
+			raise Exception(TossError(self,"void"))
+		else:
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != "main"):
+				raise Exception(TossError(self,'main'))
+			else:
+				self.Lexical.GetNextToken()
+				if(self.Lexical.getToken().lexem != "("):
+					raise Exception(TossError(self, '('))
+				else: 
+					self.Lexical.GetNextToken()
+					if self.Lexical.getToken().lexem != ')':
+						raise Exception(TossError(self,')'))
+					else:
+						try:
+							self.method_body()
+						except Exception as e:
+							self.HandleException(e)
+
+	def Class_declaration(self):
+		print "Stub Class_Declaration"
+		if(self.Lexical.GetToken().lexem != "class"):
+			raise Exception(TossError(self,"class")
+		try:
+			self.Lexical.GetNextToken()
+			self.class_name()
+		except Exception as e:
+			self.HandleException(e)
+		self.Lexical.GetNextToken()
+	def class_name(self):
+		if(self.Lexical.getToken().myType != "identifier"):
+			raise Exception(TossError(self,"identifier")
+		symId = getSymID("Class")
+
+	def class_member_declaration(self):
+		print "class_Member_declaration"
+	def field_declaration(self):
+		print "Stub field_Declaration"
+	def constructor_declaration(self):
+		print "Stub Constructor_Declaration"
+	def method_body(self):
+		print "Stub Method)_body"
+	def variable_declaration(self):
+		print "Stub variable_declaration"
+
+	def parameter_list(self):
+		print "Stub parameter_list"
+	def parameter(self):
+		print "Parameter stub"
 tmp = Syntax(Lexical.LexAnalyzer("test.re","test.kxi"))
 
 tmp.run()
