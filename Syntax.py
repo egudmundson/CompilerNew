@@ -227,8 +227,9 @@ class Syntax():
 		except:
 			try:
 				self.constructor_declaration()
-			except:
-				raise Exception(TossError(self,"Modifier or Constructor Expected"))
+			except Exception as e:
+				print str(e)+"or Modifier Expected"
+				raise Exception()
 
 		raise Exception(TossError(self,"Class_Member Declaration"))
 	def isModifier(self):
@@ -241,6 +242,7 @@ class Syntax():
 		print "Stub field_Declaration"
 	def constructor_declaration(self):
 		print "Stub Constructor_Declaration"
+		
 	def method_body(self):
 		print "Stub Method)_body"
 	def variable_declaration(self):
