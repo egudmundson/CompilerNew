@@ -37,6 +37,7 @@ class SymbolTable():
 		myType = Type.lower()[0]
 		data += myType + str(self.count)
 		self.count+=1
+		return data
 
 
 

@@ -17,6 +17,9 @@ class Syntax():
 		self.FirstPass = firstPass
 		self.Compilation_Unit()
 		print "First Run"
+	def HandleException(self, exception):
+		print str(exception)
+		exit(0)
 	def Expression(self):
 		if(self.Lexical.getToken().lexem == "("):
 			self.Lexical.GetNextToken()
@@ -194,22 +197,46 @@ class Syntax():
 							self.HandleException(e)
 
 	def Class_declaration(self):
-		print "Stub Class_Declaration"
-		if(self.Lexical.GetToken().lexem != "class"):
-			raise Exception(TossError(self,"class")
+		if(self.Lexical.getToken().lexem != "class"):
+			raise Exception(TossError(self,"class"))
 		try:
 			self.Lexical.GetNextToken()
 			self.class_name()
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != "{"):
+				raise Exception(TossError(self,"{"))
+			
 		except Exception as e:
 			self.HandleException(e)
 		self.Lexical.GetNextToken()
+		while(True):
+			try:
+				self.class_member_declaration()
+			except Exception as e:
+				break
 	def class_name(self):
-		if(self.Lexical.getToken().myType != "identifier"):
-			raise Exception(TossError(self,"identifier")
-		symId = getSymID("Class")
+		if(self.Lexical.getToken().myType != "Identifier"):
+			print self.Lexical.getToken().myType
+			raise Exception(TossError(self,"Identifier"))
+		if(self.FirstPass):
+			symId = self.SymbolTable. getSymID("Class")
 
 	def class_member_declaration(self):
-		print "class_Member_declaration"
+		try:
+			self.isModifier()
+		except:
+			try:
+				self.constructor_declaration()
+			except:
+				raise Exception(TossError(self,"Modifier or Constructor Expected"))
+
+		raise Exception(TossError(self,"Class_Member Declaration"))
+	def isModifier(self):
+		token = self.Lexical.getToken()
+		if( token.lexem == "public"  or token.lexem == "private"):
+			return
+		else:
+			raise Exception()
 	def field_declaration(self):
 		print "Stub field_Declaration"
 	def constructor_declaration(self):
