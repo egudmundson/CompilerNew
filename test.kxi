@@ -1,8 +1,8 @@
 class iTreee {
-    priate iNode root;
+    private iNode root;
     private int first;
 
-    public iTree() {
+    iTree() {
 	root = null;
     }
 

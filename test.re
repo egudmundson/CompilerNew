@@ -1,7 +1,7 @@
 number#\+?\-?[0-9]+
 class#class
-keyword#void
-keyword#int
+type#void
+type#int
 keyword#null
 keyword#public
 keyword#private
@@ -11,8 +11,8 @@ keyword#char
 keyword#else
 keyword#if
 keyword#atoi
-keyword#bool
-keyword#char
+type#bool
+type#char
 keyword#false
 keyword#itoa
 keyword#main
