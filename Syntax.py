@@ -103,8 +103,6 @@ class Syntax():
 		except Exception as e:
 			raise Exception(TossError(self,"Exception"))
 
-
-
 	def Compilation_Unit(self):
 		try:
 			self.Class_declaration()
