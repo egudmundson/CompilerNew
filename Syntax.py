@@ -90,7 +90,9 @@ class Syntax():
 			if(self.Lexical.getToken().lexem != "]"):
 				raise Exception(TossError(self,"]"))
 	def argument_list(self):
-		print "STUB"
+		try:
+			self.expression()
+		except
 
 	def Compilation_Unit(self):
 		try:
