@@ -20,8 +20,8 @@ class Syntax():
 	def HandleException(self, exception):
 		print str(exception)
 		exit(0)
-	def Expression(self):
-		print "Expression stub"
+	def expression(self):
+		raise Exception("Expression Stub")
 	def expressionz(self):
 		print "Expressionz Stub"
 	def assignment_expression(self):
@@ -169,25 +169,19 @@ class Syntax():
 				print str(e)+"or Modifier Expected"
 				raise Exception()
 		self.Lexical.GetNextToken()
-		print "modifier"
 		try:
 			self.isType()
-			print "isType"
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().myType != 'Identifier'):
 				raise Exception(TossError(self,'Identifier'))
-			print "Is Identifier"
 			self.Lexical.GetNextToken()
 			self.field_declaration()
 		except Exception as e:
-			print "Exception 2"
 			self.HandleException(e)
 	def isType(self):
 		token  = self.Lexical.getToken()
 		if(self.FirstPass):
-			print token.myType
-			if token.myType == 'type' or token.myType == 'Identifier':				
-				print "Returning is Type"
+			if token.myType == 'type'or token.myType == "Identifier":				
 				return
 			else:
 				raise Exception(TossError(self,'Type'))
@@ -203,15 +197,12 @@ class Syntax():
 	def isModifier(self):
 		token = self.Lexical.getToken()
 		if( token.lexem == "public"):
-			print "Returning from IsModifier"
 			return
 		elif(token.lexem == 'private'):
 			return
 		else:
-			print "Exception Modifier"
 			raise Exception()
 	def field_declaration(self):
-		print "Stub field_Declaration"
 		token = self.Lexical.getToken()
 		if(token.lexem == '('):
 			self.Lexical.GetNextToken()
@@ -263,7 +254,7 @@ class Syntax():
 
 		
 	def method_body(self):
-		print "Stub Method)_body"
+		print self.Lexical.getToken().lexem
 		if(self.Lexical.getToken().lexem != '{'):
 			raise Exception(TossError(self,'{'))
 		self.Lexical.GetNextToken()
@@ -272,12 +263,15 @@ class Syntax():
 				self.variable_declaration()
 				self.Lexical.GetNextToken()
 			except Exception as e:
+				print self.Lexical.getToken().lexem
 				break
 		while(True):
+			print "Trying Statment"
 			try:
 				self.statement()
 				self.Lexical.GetNextToken()
 			except:
+				print "Statment Exception"
 				break
 		if(self.Lexical.getToken() != '}'):
 			raise Exception(TossError(self,'}'))
@@ -287,6 +281,8 @@ class Syntax():
 			self.isType()
 		except Exception as e:
 			raise e
+		if(self.Lexical.Peek().myType != 'Identifier'):
+			raise Exception()
 		self.Lexical.GetNextToken()
 		if(self.Lexical.getToken().myType != 'Identifier'):
 			self.handleException(Exception(TossError(self,'Identifier')))
@@ -306,8 +302,93 @@ class Syntax():
 		if(self.Lexical.getToken().lexem != ';'):
 			self.HandleException(Exception(TossError(self,';')))
 	def statement(self):
-		print "Stub Statement"
-		raise(Exception("In Statement Stub"))
+		if(self.Lexical.getToken().lexem == "{"):
+			self.Lexical.GetNextToken()
+			try:
+				self.statement()
+			except Exception as e:
+				raise e
+			self.Lexical.GetNextToken()
+			if self.Lexical.getToken().lexem != "}":
+				raise Exception(TossError(self,"}"))
+		elif(self.Lexical.getToken().lexem == "if"):
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != "("):
+				raise Exception(TossError(self,"("))
+			self.Lexical.GetNextToken()
+			try:
+				self.expression()
+			except Exception as e:
+				raise e
+			self.Lexical.GetNextToken()
+			if self.Lexical.getToken().lexem != ")":
+				raise Exception(TossError(self,")"))
+			try:
+				self.Lexical.GetNextToken()
+				self.statement()
+			except Exception as e:
+				raise e
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem == "else"):
+				try:
+					self.Lexical.GetNextToken()
+					self.statement()
+				except Exception as e:
+					raise e	
+			return
+		elif(self.Lexical.getToken().lexem  == "while"):
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != "("):
+				raise Exception(TossError(self,"("))
+			self.Lexical.GetNextToken()
+			try:
+				self.exception()
+			except Exception as e:
+				raise e
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != ")"):
+				raise Exception(TossError(self,")"))
+			self.Lexical.GetNextToken()
+			try:
+				self.statement()
+			except Exception as e:
+				raise e
+		elif (self.Lexical.getToken().lexem == "return"):
+			self.Lexical.GetNextToken()
+			try:
+			    self.expression()
+			except Exception as e:
+				print e.msg
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != ";"):
+				raise Exception(TossError(self,";"))
+		elif (self.Lexical.getToken().lexem == "cout"):
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != "<<"):
+				raise Exception(TossError(self,"<<"))
+			self.Lexical.GetNextToken()
+			try:
+				self.expression()
+			except Exception as e:
+				raise e
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != ";"):
+				raise Exception(TossError(self,";"))
+		elif self.Lexical.getToken().lexem == "cin":
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != ">>"):
+				raise Exception(TossError(self,">>"))
+			self.Lexical.GetNextToken()
+			try:
+				self.expression()
+			except Exception as e:
+				raise e
+		else:
+			try:
+				print "Trying Expression"
+				self.expression()
+			except Exception as e:
+				raise e
 	def parameter_list(self):
 		return False
 		print "Stub parameter_list"
