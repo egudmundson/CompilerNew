@@ -49,7 +49,7 @@ class Syntax():
 			if(self.Lexical.getToken().lexem != ')'):
 				self.HandleException(TossError(self,')'))
 		elif(self.Lexical.getToken().lexem == 'itoa'):
-						self.Lexical.GetNextToken()
+			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != '('):
 				self.HandleException(TossError(self,'('))
 			self.Lexical.GetNextToken()
@@ -90,7 +90,20 @@ class Syntax():
 			if(self.Lexical.getToken().lexem != "]"):
 				raise Exception(TossError(self,"]"))
 	def argument_list(self):
-		print "STUB"
+		try:
+			self.expression()
+		except Exception as e:
+			return
+		self.Lexical.GetNextToken()
+		if(self.Lexical.getToken.lexem != ","):
+			return
+		try:
+			self.Lexical.GetNextToken()
+			self.expression()
+		except Exception as e:
+			raise Exception(TossError(self,"Exception"))
+
+
 
 	def Compilation_Unit(self):
 		try:
