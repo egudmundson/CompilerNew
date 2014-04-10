@@ -1,5 +1,6 @@
 import SymbolTable
 import Lexical
+import os
 
 def TossError(Syntax,Expected):
 	return "Recevied %s on line %d Expected %s "%(Syntax.Lexical.getToken().lexem,Syntax.Lexical.getToken().line,Expected)
@@ -19,8 +20,34 @@ class Syntax():
 		print "First Run"
 	def HandleException(self, exception):
 		print str(exception)
-		exit(0)
+		os._exit(0)
 	def expression(self):
+		if(self.Lexical.getToken().lexem == "("):
+			try:
+				self.Lexical.GetNextToken()
+				self.expression()
+			except SystemExit as e:
+				print "Exception SysExit"
+				raise e
+			except Exception as e:
+				raise e
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != ")"):
+				raise Exception(TossError(self,")"))
+			self.Lexical.GetNextToken()
+			try:
+				self.expressionz()
+			except Exception as e:
+				print "no Expressoinz"
+
+		elif(self.Lexical.getToken().lexem == "true" or self.Lexical.getToken().lexem == "false" or self.Lexical.getToken().lexem == "null" or self.Lexical.getToken().myType = "number" or self.Lexical.getToken().myType == "char" ):
+			try:
+				self.Lexical.GetNextToken()
+				self.expressionz()
+			except Exception as e:
+			print "no Expressoinz"
+	
+		elif(self.Lexical.getToken().myType  == "Identifier"):
 		raise Exception("Expression Stub")
 	def expressionz(self):
 		print "Expressionz Stub"
@@ -76,7 +103,7 @@ class Syntax():
 			try:
 				self.argument_list()
 			except Exception as e:
-				self.HandleException(e)
+				self.HandleException(e
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != ")"):
 				raise Exception(TossError(self,")"))
@@ -388,7 +415,7 @@ class Syntax():
 				print "Trying Expression"
 				self.expression()
 			except Exception as e:
-				raise e
+				self.HandleException(e)
 	def parameter_list(self):
 		return False
 		print "Stub parameter_list"
