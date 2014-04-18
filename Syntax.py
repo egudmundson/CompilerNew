@@ -52,7 +52,7 @@ class Syntax():
 				ret = self.member_refz()
 				if (ret == None):
 					self.Lexical.GetNextToken()
-				ret = self.member.expressionz()
+				ret = self.expressionz()
 			except Exception as e:
 				self.HandleException(e)
 		else:
@@ -70,13 +70,38 @@ class Syntax():
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != ")"):
 				raise Exception(TossError(self,")"));
-
+			return 1
 		elif( self.Lexical.getToken().lexem == "["):
 			
 			self.Lexical.GetNextToken()
+			try:
+				self.expression()
+			except Exception as e:
+				self.HandleException(e)
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != "]"):
+				raise Exception(TossError(self,"]"))
+			return 1
 		else:
-			raise Exception(TossError(self,"[ |("))
-
+			return None
+	
+	def member_refz(self):
+		if(self.Lexical.getToken().lexem != "."):
+			return
+		self.Lexical.GetNextToken()
+		if(self.Lexical.getToken().myType != "Identifier"):
+			raise Exception(TossError(self,"Identifier"))
+		try:
+			self.Lexical.GetNextToken()
+			ret = self.fn_arr_member()
+			if( ret != None):
+				self.Lexical.GetNextToken()
+			ret = self.member_refz()
+			if(ret != None):
+				self.Lexical.GetNextToken()
+		except Exception as e:
+			self.HandleException(e)
+		return 1
 	def assignment_expression(self):
 		if self.Lexical.getToken().lexem == 'this':
 			self.Lexical.GetNextToken()
