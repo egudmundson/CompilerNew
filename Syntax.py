@@ -26,9 +26,6 @@ class Syntax():
 			try:
 				self.Lexical.GetNextToken()
 				self.expression()
-			except SystemExit as e:
-				print "Exception SysExit"
-				raise e
 			except Exception as e:
 				raise e
 			self.Lexical.GetNextToken()
@@ -38,19 +35,48 @@ class Syntax():
 			try:
 				self.expressionz()
 			except Exception as e:
-				print "no Expressoinz"
-
-		elif(self.Lexical.getToken().lexem == "true" or self.Lexical.getToken().lexem == "false" or self.Lexical.getToken().lexem == "null" or self.Lexical.getToken().myType = "number" or self.Lexical.getToken().myType == "char" ):
+				self.HandleException(e)
+		elif(self.Lexical.getToken().lexem == "true" or self.Lexical.getToken().lexem == "false" or self.Lexical.getToken().lexem == "null" or self.Lexical.getToken().myType == "number" or self.Lexical.getToken().myType == "char" ):
 			try:
 				self.Lexical.GetNextToken()
-				self.expressionz()
+				ret = self.expressionz()
 			except Exception as e:
-			print "no Expressoinz"
+				self.HandleException(e)
 	
 		elif(self.Lexical.getToken().myType  == "Identifier"):
-		raise Exception("Expression Stub")
+			try:
+				self.Lexical.GetNextToken()
+				ret = self.fn_arr_member()
+				if (ret == None):
+					self.Lexical.GetNextToken()
+				ret = self.member_refz()
+				if (ret == None):
+					self.Lexical.GetNextToken()
+				ret = self.member.expressionz()
+			except Exception as e:
+				self.HandleException(e)
+		else:
+			raise Exception("NoneExistant")
 	def expressionz(self):
 		print "Expressionz Stub"
+	def fn_arr_member(self):
+		if(self.Lexical.getToken().lexem == "("):
+			self.Lexical.GetNextToken()
+			try:
+				self.argument_list()
+			except Exception as e:
+				if e.msg != "NoneExistant":
+					self.HandleException(e)
+			self.Lexical.GetNextToken()
+			if(self.Lexical.getToken().lexem != ")"):
+				raise Exception(TossError(self,")"));
+
+		elif( self.Lexical.getToken().lexem == "["):
+			
+			self.Lexical.GetNextToken()
+		else:
+			raise Exception(TossError(self,"[ |("))
+
 	def assignment_expression(self):
 		if self.Lexical.getToken().lexem == 'this':
 			self.Lexical.GetNextToken()
@@ -103,7 +129,7 @@ class Syntax():
 			try:
 				self.argument_list()
 			except Exception as e:
-				self.HandleException(e
+				self.HandleException(e)
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != ")"):
 				raise Exception(TossError(self,")"))
@@ -120,15 +146,15 @@ class Syntax():
 		try:
 			self.expression()
 		except Exception as e:
-			return
-		self.Lexical.GetNextToken()
-		if(self.Lexical.getToken.lexem != ","):
-			return
-		try:
+			raise e
+		while(self.Lexical.Peek.lexem != ","):
+		
 			self.Lexical.GetNextToken()
-			self.expression()
-		except Exception as e:
-			raise Exception(TossError(self,"Exception"))
+			try:
+				self.Lexical.GetNextToken()
+				self.expression()
+			except Exception as e:
+				raise Exception(TossError(self,"Exception"))
 
 	def Compilation_Unit(self):
 		try:
