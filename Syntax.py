@@ -67,7 +67,7 @@ class Syntax():
 		elif(token.lexem == "&&" or token.lexem == '||'):
 			self.Lexical.GetNextToken()
 			self.expression()
-		elif(token.lexem == "==" or token.lexem == "!=" or token.lexem == '<=' or token.lexem == '>=' or token.lexem  == '<' or token.lexem == '>'):
+		elif(token.lexem == "==" or token.lexem == "!=" or token.lexem == '<=' or token.lexem == '>=' or token.lexem == '<' or token.lexem == '>'):
 			self.Lexical.GetNextToken()
 			self.expression()
 		elif(token.myType == 'math'):

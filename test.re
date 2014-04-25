@@ -1,6 +1,6 @@
 number#\+?\-?[0-9]+
 class#class
-keyword#void
+type#void
 type#int
 keyword#null
 keyword#public
