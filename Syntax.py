@@ -21,6 +21,7 @@ class Syntax():
 		print str(exception)
 		os._exit(0)
 	def expression(self):
+		
 		if(self.Lexical.getToken().lexem == "("):
 			try:
 				self.Lexical.GetNextToken()
@@ -46,18 +47,33 @@ class Syntax():
 			try:
 				self.Lexical.GetNextToken()
 				ret = self.fn_arr_member()
-				if (ret == None):
+				if (ret != None):
 					self.Lexical.GetNextToken()
 				ret = self.member_refz()
-				if (ret == None):
+				print self.Lexical.getToken().lexem
+				if (ret != None):
 					self.Lexical.GetNextToken()
+				print self.Lexical.getToken().lexem
 				ret = self.expressionz()
 			except Exception as e:
 				self.HandleException(e)
 		else:
 			raise Exception()
 	def expressionz(self):
-		print "Expressionz Stub"
+		token = self.Lexical.getToken()
+		if(token.lexem == '='):
+			self.Lexical.GetNextToken()
+			self.assignment_expression()
+		elif(token.lexem == "&&" or token.lexem == '||'):
+			self.Lexical.GetNextToken()
+			self.expression()
+		elif(token.lexem == "==" or token.lexem == "!=" or token.lexem == '<=' or token.lexem == '>=' or token.lexem  == '<' or token.lexem == '>'):
+			self.Lexical.GetNextToken()
+			self.expression()
+		elif(token.myType == 'math'):
+			self.Lexical.GetNextToken()
+			self.expression()
+		return 1 
 	def fn_arr_member(self):
 		if(self.Lexical.getToken().lexem == "("):
 			self.Lexical.GetNextToken()
@@ -119,7 +135,7 @@ class Syntax():
 				self.HandleException(TossError(self,'('))
 			self.Lexical.GetNextToken()
 			try:
-				self.Expression()
+				self.expression()
 			except Exception as e:
 				self.HandleException(e)
 			self.Lexical.GetNextToken()
@@ -131,7 +147,7 @@ class Syntax():
 				self.HandleException(TossError(self,'('))
 			self.Lexical.GetNextToken()
 			try:
-				self.Expression()
+				self.expression()
 			except Exception as e:
 				self.HandleException(e)
 			self.Lexical.GetNextToken()
@@ -140,7 +156,7 @@ class Syntax():
 		else:
 
 			try: 
-				self.Expression()
+				self.expression()
 			except Exception as e:
 				raise e			
 
@@ -160,7 +176,7 @@ class Syntax():
 		if(self.Lexical.getToken().lexem == "["):
 			self.Lexical.GetNextToken()
 			try:
-				self.Expression()
+				self.expression()
 			except Exception as e:
 				 self.HandleException(e)
 			self.Lexical.GetNextToken()
@@ -419,7 +435,6 @@ class Syntax():
 		if(self.Lexical.Peek().myType != 'Identifier'):
 			raise self.handleException(Exception(TossError(self,'Identifier')))
 		self.Lexical.GetNextToken()
-			
 		if(self.Lexical.getToken().myType != 'Identifier'):
 			self.handleException(Exception(TossError(self,'Identifier')))
 		if( not self.SymbolTable.Exists(self.Lexical.getToken().lexem)):
@@ -432,10 +447,11 @@ class Syntax():
 						self.HandleException(Exception(TossError(self,']')))
 				self.Lexical.GetNextToken()
 		if(self.Lexical.getToken().lexem == '='):
+			
 			self.Lexical.GetNextToken()
 			try:
 				self.assignment_expression()
-				self.Lexical.GetNextToken()
+				#self.Lexical.GetNextToken()
 			except Exception as e:
 				self.HandleException(e)
 		if(self.Lexical.getToken().lexem != ';'):
