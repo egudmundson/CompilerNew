@@ -1,4 +1,4 @@
-import SymbolTable
+from SymbolTable import *
 import Lexical
 import os
 
@@ -7,7 +7,7 @@ def TossError(Syntax,Expected):
 class Syntax():
 	def __init__(self,lexicalAnalysis):
 		self.Lexical = lexicalAnalysis
-		self.SymbolTable = SymbolTable.SymbolTable()
+		self.SymbolTable = SymbolTable()
 		self.FirstPass = None
 
 	def run(self,firstPass =True):
@@ -17,7 +17,6 @@ class Syntax():
 			self.Lexical.reset();
 		self.FirstPass = firstPass
 		self.Compilation_Unit()
-		print "First Run"
 	def HandleException(self, exception):
 		print str(exception)
 		os._exit(0)
@@ -56,7 +55,7 @@ class Syntax():
 			except Exception as e:
 				self.HandleException(e)
 		else:
-			raise Exception("NoneExistant")
+			raise Exception()
 	def expressionz(self):
 		print "Expressionz Stub"
 	def fn_arr_member(self):
@@ -182,17 +181,21 @@ class Syntax():
 				raise Exception(TossError(self,"Exception"))
 
 	def Compilation_Unit(self):
-		try:
-			self.Class_declaration()
-		except Exception as e:
-			self.HandleException(e)
+		ret = -1
+		while ret != 0:
+			try:
+				ret =self.Class_declaration()
+			except Exception as e:
+				self.HandleException(e)
 		if( self.Lexical.getToken().lexem != "void"):
 			raise Exception(TossError(self,"void"))
 		else:
 			self.Lexical.GetNextToken()
-			if(self.Lexical.getToken().lexem != "main"):
-				raise Exception(TossError(self,'main'))
-			else:
+			if(self.Lexical.getToken().lexem == "main"):
+				if(not self.SymbolTable.Exists("main")):
+					symid = self.SymbolTable.getSymID("method")
+					self.SymbolTable.addNode(SymbolNode(self.SymbolTable.getScope(),symid,"main","method",{"Return Type":"void"}))
+				self.SymbolTable.startScope("main")
 				self.Lexical.GetNextToken()
 				if(self.Lexical.getToken().lexem != "("):
 					raise Exception(TossError(self, '('))
@@ -201,17 +204,25 @@ class Syntax():
 					if self.Lexical.getToken().lexem != ')':
 						raise Exception(TossError(self,')'))
 					else:
+						self.Lexical.GetNextToken()
 						try:
 							self.method_body()
 						except Exception as e:
 							self.HandleException(e)
+					self.SymbolTable.endScope()
+			else:
+				raise Exception(TossError(self,"Main"))
+			
 
 	def Class_declaration(self):
 		if(self.Lexical.getToken().lexem != "class"):
-			raise Exception(TossError(self,"class"))
+			return 0
 		try:
 			self.Lexical.GetNextToken()
-			self.class_name()
+			ret =self.class_name()
+			if(ret == 0):
+				raise Exception(TossError(self,"ClassName"))
+			self.SymbolTable.startScope(self.Lexical.getToken().lexem)
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != "{"):
 				raise Exception(TossError(self,"{"))
@@ -219,22 +230,38 @@ class Syntax():
 		except Exception as e:
 			self.HandleException(e)
 		self.Lexical.GetNextToken()
+		count =0
 		while(True):
 			try:
 				self.class_member_declaration()
 				self.Lexical.GetNextToken()
 			except Exception as e:
 				break
-		self.Lexical.GetNextToken()
 		if(self.Lexical.getToken().lexem != "}"):
 			raise Exception(TossError(self,"}"))
+		else:
+			self.Lexical.GetNextToken()
+		self.SymbolTable.endScope()
 
 	def class_name(self):
 		if(self.Lexical.getToken().myType != "Identifier"):
-			print self.Lexical.getToken().myType
-			raise Exception(TossError(self,"Identifier"))
+			return 0
 		if(self.FirstPass):
-			symId = self.SymbolTable. getSymID("Class")
+			if (self.SymbolTable.Exists(self.Lexical.getToken().lexem)):
+				return 1
+			else:
+				
+				symId = self.SymbolTable.getSymID("Class")
+				node = self.Lexical.getToken() 
+				self.SymbolTable.addNode(SymbolNode(self.SymbolTable.getScope(),symId,node.lexem,"Class",None))
+				return 1
+		else:
+			if (self.SymbolTable.Exists(self.Lexical.getToken().lexem)):
+				return 1
+			else:
+				return 0
+
+
 
 	def class_member_declaration(self):
 		try:
@@ -244,14 +271,24 @@ class Syntax():
 				self.constructor_declaration()
 				return
 			except Exception as e:
-				print str(e)+"or Modifier Expected"
 				raise Exception()
+		modifier = self.Lexical.getToken().lexem
 		self.Lexical.GetNextToken()
 		try:
-			self.isType()
+			myType =self.isType()
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().myType != 'Identifier'):
 				raise Exception(TossError(self,'Identifier'))
+			if(not self.SymbolTable.Exists(self.Lexical.getToken().lexem)):
+				if(self.Lexical.Peek().lexem != "("):
+					symId = self.SymbolTable.getSymID("Variable")
+					node = self.Lexical.getToken()
+					self.SymbolTable.addNode(SymbolNode(self.SymbolTable.getScope(),symId,node.lexem,"ivar", {"Type":myType, "modifier":modifier}))
+				else:
+					symId = self.SymbolTable.getSymID("method")
+					node = self.Lexical.getToken()
+					self.SymbolTable.addNode(SymbolNode(self.SymbolTable.getScope(),symId,node.lexem,"method", {"return Type":myType, "modifier":modifier}))
+
 			self.Lexical.GetNextToken()
 			self.field_declaration()
 		except Exception as e:
@@ -259,18 +296,30 @@ class Syntax():
 	def isType(self):
 		token  = self.Lexical.getToken()
 		if(self.FirstPass):
-			if token.myType == 'type'or token.myType == "Identifier":				
-				return
+			if token.myType == 'type':				
+				return token.lexem
 			else:
-				raise Exception(TossError(self,'Type'))
+				ret = self.ClassNameExists()
+				if(ret == 0):
+					raise Exception("TESTING")
+				else:
+					pass
+				return None
 		else:
-			if token.myType == 'Type':
-				return
+			if token.myType == 'type':
+				return token.lexem
 			else:
-				try: 
-					self.class_name()
-				except Exception as e:
-					self.HandleException(e)
+					ret = self.ClassNameExists()
+					if ret == 0 :
+						raise Exception(TossError(self,"Type"))
+	def  ClassNameExists(self):
+		if(self.FirstPass):
+			return 1
+		else:
+			if( self.SymbolTable.Exists(self.Lexical.getToken().lexem)):
+				return 1
+			else:
+				return 0
 			
 	def isModifier(self):
 		token = self.Lexical.getToken()
@@ -284,12 +333,9 @@ class Syntax():
 		token = self.Lexical.getToken()
 		if(token.lexem == '('):
 			self.Lexical.GetNextToken()
-			try:
-				self.parameter_list()
+			if(self.parameter_list()):
 				self.Lexical.GetNextToken()
-			except Exception as e:
-				print "No Parameters"
-			if(self.Lexical.getToken() !=  ')'):
+			if(self.Lexical.getToken().lexem !=  ')'):
 				raise Exception(TossError(self,')'))
 			try:
 				self.Lexical.GetNextToken()
@@ -316,7 +362,9 @@ class Syntax():
 				raise Exception(TossError(self,';'))
 	def constructor_declaration(self):
 		try:
-			self.class_name()
+			ret = self.SymbolTable.ClassExists(self.Lexical.getToken().lexem)
+			if(not ret):
+				raise Exception()
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != '('):
 				raise Exception(TossError(self,'('))
@@ -332,7 +380,6 @@ class Syntax():
 
 		
 	def method_body(self):
-		print self.Lexical.getToken().lexem
 		if(self.Lexical.getToken().lexem != '{'):
 			raise Exception(TossError(self,'{'))
 		self.Lexical.GetNextToken()
@@ -341,29 +388,31 @@ class Syntax():
 				self.variable_declaration()
 				self.Lexical.GetNextToken()
 			except Exception as e:
-				print self.Lexical.getToken().lexem
 				break
 		while(True):
-			print "Trying Statment"
 			try:
 				self.statement()
 				self.Lexical.GetNextToken()
 			except:
-				print "Statment Exception"
 				break
-		if(self.Lexical.getToken() != '}'):
+		
+		if(self.Lexical.getToken().lexem != '}'):
 			raise Exception(TossError(self,'}'))
 		
 	def variable_declaration(self):
 		try:
-			self.isType()
+			mytype = self.isType()
 		except Exception as e:
 			raise e
 		if(self.Lexical.Peek().myType != 'Identifier'):
-			raise Exception()
+			raise self.handleException(Exception(TossError(self,'Identifier')))
 		self.Lexical.GetNextToken()
+			
 		if(self.Lexical.getToken().myType != 'Identifier'):
 			self.handleException(Exception(TossError(self,'Identifier')))
+		if( not self.SymbolTable.Exists(self.Lexical.getToken().lexem)):
+			symid = self.SymbolTable.getSymID("local")
+			self.SymbolTable.addNode(SymbolNode(self.SymbolTable.getScope(),symid,self.Lexical.getToken().lexem,"lvar",{"type":mytype}))
 		self.Lexical.GetNextToken()
 		if(self.Lexical.getToken().lexem == '['):
 				self.Lexical.GetNextToken()
@@ -436,7 +485,7 @@ class Syntax():
 			try:
 			    self.expression()
 			except Exception as e:
-				print e.msg
+				raise e
 			self.Lexical.GetNextToken()
 			if(self.Lexical.getToken().lexem != ";"):
 				raise Exception(TossError(self,";"))
@@ -463,15 +512,38 @@ class Syntax():
 				raise e
 		else:
 			try:
-				print "Trying Expression"
-				self.expression()
+				ret =self.expression()
+			except Exception as e:
+				raise e
+			
+				
+	def parameter_list(self):
+		if(self.Lexical.getToken().lexem == ")"):
+			return False
+		while(True):
+			try:
+				self.parameter()
+				self.Lexical.GetNextToken()
+				if(self.Lexical.getToken().lexem != ","):
+					break
+				self.Lexical.GetNextToken()
 			except Exception as e:
 				self.HandleException(e)
-	def parameter_list(self):
 		return False
-		print "Stub parameter_list"
 	def parameter(self):
-		print "Parameter stub"
-tmp = Syntax(Lexical.LexAnalyzer("test.re","test.kxi"))
+		try:
+			myType = self.isType()
+		except:
+			raise Exception(TossError(self,"Type"))
+		self.Lexical.GetNextToken()
+		if(self.Lexical.getToken().myType != "Identifier" ):
+			raise Exception(TossError(self,"Identifier"))
+
+	def printTable(self):
+		print self.SymbolTable.getScope()
+		print self.SymbolTable
+tmp = Syntax(Lexical.LexAnalyzer("test.re","main.kxi"))
 
 tmp.run()
+tmp.run(False)
+tmp.printTable()

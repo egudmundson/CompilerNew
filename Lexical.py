@@ -60,5 +60,6 @@ class LexAnalyzer():
 		return self.List[self.location+1]
 	def GetNextToken(self):
 		self.location+=1
-
+	def reset(self):
+		self.location =0
 

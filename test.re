@@ -1,13 +1,12 @@
 number#\+?\-?[0-9]+
 class#class
-type#void
+keyword#void
 type#int
 keyword#null
 keyword#public
 keyword#private
 keyword#cout
 keyword#cin
-keyword#char
 keyword#else
 keyword#if
 keyword#atoi
