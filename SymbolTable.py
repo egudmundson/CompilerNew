@@ -42,11 +42,6 @@ class SymbolTable():
 		self.scope = scope
 	def getScope(self):
 		return self.scope
-	def __str__(self):
-		string = ''
-		for x in self.Table.keys():
-			string += str(self.Table[x])
-		return string
 	def getSymID(self,Type):
 		data=''
 		myType = Type.lower()[0]
@@ -58,7 +53,7 @@ class SymbolTable():
 		string = ""
 		for x in self.Table:
 			string += str(self.Table[x])
-			string += "\n"
+			string += "\n\n\n"
 		return string
 
 

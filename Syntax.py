@@ -365,7 +365,18 @@ class Syntax():
 			ret = self.SymbolTable.ClassExists(self.Lexical.getToken().lexem)
 			if(not ret):
 				raise Exception()
+			if(not self.FirstPass):	
+				symId = self.SymbolTable.getSymID("method")
+				token = self.Lexical.getToken()
+				try:
+					node = SymbolNode(self.SymbolTable.getScope(),symId,token.lexem,"method",None)
+					self.SymbolTable.addNode(node)
+				except Exception as e:
+					print str(e)
+			self.SymbolTable.startScope(self.Lexical.getToken().lexem)
 			self.Lexical.GetNextToken()
+			
+			
 			if(self.Lexical.getToken().lexem != '('):
 				raise Exception(TossError(self,'('))
 			self.Lexical.GetNextToken()
@@ -374,7 +385,8 @@ class Syntax():
 			if (self.Lexical.getToken().lexem != ')'):
 				raise Exception(TossError(self,')'))
 			self.Lexical.GetNextToken()
-			self.method_body()			
+			self.method_body()
+			self.SymbolTable.endScope()
 		except Exception as e:
 			raise e
 
