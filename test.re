@@ -1,4 +1,6 @@
 number#\+?\-?[0-9]+
+char#\'\\[a-z]\'
+char#\'[a-zA-Z<>]\'
 class#class
 type#void
 type#int
@@ -32,6 +34,8 @@ CloseBracket#\}
 puncutation#;
 OpenParen#\(
 CloseParen#\)
+bool#==
+bool#!=
 assignment#=
 math#\-
 math#\+
@@ -39,6 +43,8 @@ math#\*
 punctuation#\'
 math#/
 punctuation#\,
+keyword#<<
+keyword#>>
 relational#<
 relational#>
 relational#<=

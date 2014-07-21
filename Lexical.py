@@ -41,17 +41,30 @@ class LexAnalyzer():
 
 	def addToList(self,line,lineNumber):
 		line = line.split("\n")[0].strip()
+		line = line.split("\\\\")[0]
+		print line
 		line = line.split(" ")
 		for x in range(0,len(line)):
+			count = 0
 			while len(line[x]) != 0:
 				for data in self.grammer:
 					data = data.split('\n');
 					dataset = data[0].split('#')
 					match = re.match(dataset[1],line[x])
+					if(line[x]=="'\n'"):
+						print match
 					if( match != None):
 						lexem =line[x][0:match.span()[1]]
 						self.List.append(LexicalNode(lexem,dataset[0],lineNumber,x))
 						line[x]= line[x][match.span()[1]:]
+						count =0
+						break
+				if(count == 10):
+					print "Unkown %s on line %d" %(line[x],lineNumber)
+					exit()
+				else:
+					count += 1
+				
 
 	def getToken(self):
 		return self.List[self.location]
